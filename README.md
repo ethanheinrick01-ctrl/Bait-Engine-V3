@@ -1,194 +1,265 @@
-# Bait Engine v2
+# Bait Engine V3
 
-A context-safe rebuild of the project's hardest layer first: the cognitive core.
+> Automated engagement system with adaptive persona routing, mutation-driven evolution, and bite-gated targeting.
 
-This repo starts with the parts that are easiest to lose in chat and hardest to improvise later:
-- domain models
-- analysis pipeline
-- decision engine
-- branch prediction contracts
-- storage-ready types
+Bait Engine V3 is a fully-featured automation framework for analyzing online conversations, generating contextually appropriate responses, and managing multi-platform engagement with safety rails, observability, and evolution-driven improvement.
 
-## Build doctrine
+## What It Does
 
-1. Lock the schemas before writing clever code.
-2. Separate analysis from generation.
-3. Make every decision inspectable.
-4. Prefer deterministic scoring around the model, not model-only magic.
-5. Keep work chunked into small, durable files so session loss does not rot the project.
+- **Analyzes** incoming messages for sentiment, contradiction, archetype signals, and opportunity scoring
+- **Plans** tactical responses using persona-specific strategies and exit criteria
+- **Generates** candidate replies with provider-backed LLM integration
+- **Routes** through platform adapters (Reddit, X, Discord, Web) with transport-neutral envelopes
+- **Evolves** via mutation loops that learn from high-performing responses
+- **Monitors** with a built-in dashboard, autopsy tools, and engagement scoreboards
 
-## Phase order
+## Key Features
 
-- Phase 0: architecture + schemas
-- Phase 1: analysis engine
-- Phase 2: decision engine + branch prediction
-- Phase 3: generation shell + CLI
-- Phase 4: persistence + replay
-- Phase 5: provider-backed generation
-- Phase 6: adapters and UI ✅ complete
-- Phase 7: execution rail + transport dispatch seam ✅ complete
-- Phase 8: rhetoric scoring + persona reputation ✅ complete
-- Phase 9: hunt intake rail + target discovery ✅ complete
-- Phase 10: bite gate + mutation loop rail ✅ complete
-- Phase 11: optimization rail ✅ complete (arteries 1–6 landed)
-- Phase 12: auto persona router ✅ complete (arteries 1–4 landed)
-- Phase 13: autopilot hardening ✅ complete (arteries 1–7 landed)
+### Core Engine
+- **Phase 1-3**: Analysis pipeline, decision engine, generation shell
+- **Phase 4-5**: Persistence, replay, provider-backed generation
+- **Phase 6-7**: Adapters, UI, execution rail, transport dispatch
+- **Phase 8**: Rhetoric scoring, persona reputation tracking
+- **Phase 9**: Hunt intake rail with target discovery
+- **Phase 10**: Bite gate + mutation loop rail with winner evolution
+- **Phase 11-13**: Optimization rail, auto persona router, autopilot hardening
 
-## Test status
+### Safety & Control
+- Deterministic scoring around models, not model-only magic
+- Every decision inspectable via CLI and dashboard
+- Approval workflows before dispatch
+- Bite-gated targeting (requires qualification signals)
+- Dead letter queue with retry/redrive capability
 
-**145 tests passing**
+### Observability
+- SQLite-backed run storage with full audit trail
+- Autopsy tools for outcome analysis
+- Scoreboard rollups by persona, platform, objective
+- Report generation (markdown, CSV)
+- Real-time dashboard with HTTP API
 
-## Current CLI surface
-
-### Core operations
-- `analyze` — analyze a comment for signals, axes, archetypes, contradictions
-- `plan` — build a tactical plan from analysis
-- `draft` — generate candidate replies
-- `runs` — list stored runs
-- `personas` — list available personas
-- `show-run` — display a specific run
-- `replay` — replay a stored run with new parameters
-
-### Assessment & reporting
-- `autopsy` — inspect a single run outcome
-- `autopsy-many` — summarize recent runs
-- `scoreboard` — roll up engagement outcomes across stored runs
-- `report` — bundle scoreboard with best bites, flops, watchlist
-- `report-markdown` — render report as human-readable markdown
-- `report-csv` — export report as CSV
-- `record-outcome` — record engagement outcome for a run
-
-### Hunt intake (Phase 9+)
-- `hunt-preview` — preview targets from a hunt source
-- `hunt-list` — list available intake targets
-- `hunt-promote` — promote a target to active processing
-- `hunt-cycle` — run a staged hunt cycle
-- `hunt-run` — execute full hunt with dispatch
-
-### Mutation & evolution (Phase 10+)
-- `mutate-run` — mutate winners from a specific run
-- `mutate-winners` — batch mutate recent winners
-- `mutation-report` — inspect mutation inventory by persona/platform/tactic
-
-### Adapter & dispatch
-- `adapters` — list registered platform adapters
-- `adapter` — show one registered adapter
-- `adapter-preview` — compile a stored run into a transport-neutral reply envelope
-- `context-preview` — validate inbound thread context payloads
-- `target-preview` — normalize platform-specific target identifiers
-- `recommend-preset` — recommend a platform preset from live thread context
-- `emit-preview` — render a transport-specific dry-run request
-- `dispatch-emit` — dispatch an approved outbox entry
-- `dispatch-approved` — batch-fire approved backlog
-- `dispatch-status` — check dispatch lifecycle status
-- `redrive-dispatch` — retry failed dispatches
-
-### Panel & dashboard
-- `panel-preview` — build a local inspection panel payload
-- `panel-serve` — host the panel as a local HTTP app with full cockpit
-- `record-panel-review` — record operator review as ranking bias
-- `outbox` — inspect the emit outbox
-
-### Worker & daemon
-- `worker-cycle` — run one worker pass (approval → dispatch)
-- `worker-run` — run bounded worker cycles
-- `daemon` — install/inspect/remove LaunchAgent-backed login daemon
-
-## Generation controls
-
-- `draft` supports `--persona auto` for deterministic router-based persona selection
-- `draft` and `replay` support `--heuristic-only` for deterministic local drafting
-- `draft` and `replay` support `--model`, `--base-url`, and `--timeout-seconds`
-- `draft` and `replay` support `--mutation-source` (`auto` or `none`) to control mutation carryover
-- Provider-backed generation falls back cleanly when credentials are absent or the provider fails
-
-### Hunt intake controls
-- `hunt-preview` supports `--persona auto` (Phase 12 Artery 1 scaffold)
-- `hunt-preview`, `hunt-cycle`, and `hunt-run` support `--persona` and `--prior-days` to tune lane prior lookback
-- Intake targets are auto-scored with effective_score (base_score + lane_prior boost)
-- Deep/fast lane resolver uses effective_score with bite gate enforcement
-
-### Assessment & scoring
-- `autopsy-many` summarizes recent runs and supports `--persona`, `--platform`, and `--verdict`
-- `scoreboard` rolls up engagement outcomes by persona, platform, objective, tactic, and exit state
-- `report` bundles scoreboard with best bites, highest-ranked flops, and pending watchlist
-- `report-markdown` renders as human-readable markdown with `--out`
-- `report-csv` exports as CSV with `--out`
-
-### Adapter & selection
-- `adapter-preview` supports selection strategies: `rank`, `top_score`, `highest_bite`, `highest_audience`, `lowest_penalty`, `auto_best`
-- `adapter-preview` supports surface presets via `--selection-preset` (`engage`, `audience`, `safe`, `default`)
-- `adapter-preview` supports candidate filters: `--tactic`, `--objective`
-- `recommend-preset` inspects thread/message metadata and returns inspectable recommendation metrics
-- `target-preview` enforces adapter capabilities before returning a valid target
-
-### Panel & review
-- `panel-serve` exposes `/dashboard` and `/api/runs` for cockpit behavior
-- `panel-serve` exposes `/api/draft` for direct run creation
-- `panel-serve` exposes `/api/outbox`, `/api/stage-emit`, `/api/outbox-status` for outbox management
-- `panel-serve` exposes `/api/dispatch-emit`, `/api/dispatch-approved`, `/api/dispatch-status`, `/api/dispatch-redrive` for dispatch control
-- `panel-serve` exposes `/api/worker-cycle` for worker execution
-- `panel-serve` exposes `/api/mutate-run`, `/api/mutate-winners` for mutation from cockpit
-- `panel-serve` exposes `/api/daemon` for LaunchAgent control
-- Outcome overlays support `--include-outcome-overlay` / `--no-include-outcome-overlay` and `--history-limit`
-- Variant generation supports `--include-all-presets`, `--include-strategy-variants`, `--include-filter-variants`, `--variant-limit`
-- Operator reviews persist as ranking bias via `record-panel-review`
-
-### Worker & daemon
-- `worker-cycle` and `worker-run` support `--include-failed-redrive`, `--redrive-limit`, `--min-failed-age-seconds`
-- `daemon` supports `panel` and `worker` modes
-- `daemon` supports `--max-cycles`, `--dispatch-limit`, `--driver`, `--out-dir`, `--interval-seconds`
-
-## Adapter seam
-
-Phase 6 starts with a neutral reply envelope instead of direct posting.
-That envelope carries:
-- selected candidate text
-- platform + thread/reply identifiers
-- run metadata for inspection and auditability
-
-A registry layer exposes named adapters plus capability flags for:
-- reddit
-- x
-- discord
-- web
-
-Inbound thread-context contracts describe what the engine is replying into:
-- thread id
-- subject
-- recent messages
-- root author handle
-
-## Phase documentation
-
-- Phase 6 closure: `docs/10_phase6_completion.md`
-- Phase 7 closure: `docs/13_phase7_completion.md`
-- Phase 9 closure: `docs/14_phase9_hunt_intake.md`
-- Phase 10 closure: `docs/15_phase10_bite_evolution.md`
-- Phase 11 optimization rail: `docs/16_phase11_optimization_rail.md`
-- Phase 12 auto persona router: `docs/18_phase12_auto_persona_router.md`
-- Phase 13 autopilot hardening: `docs/19_phase13_autopilot_hardening.md`
-- Build order: `docs/00_build_order.md`
-
-## Quick start
+## Installation
 
 ```bash
-# Set up
+git clone https://github.com/ethanheinrick01-ctrl/Bait-Engine-V3.git
+cd Bait-Engine-V3
+
+# Using uv (recommended)
+uv sync
+source .venv/bin/activate
+
+# Or using pip
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
-
-# Analyze a comment
-python3 -m bait_engine.cli.main analyze --text "Your take is garbage and you should feel bad"
-
-# Draft a reply
-python3 -m bait_engine.cli.main draft --text "Your take is garbage" --persona dry_midwit_savant --platform reddit --save
-
-# Hunt for targets
-python3 -m bait_engine.cli.main hunt-preview --source reddit --persona dry_midwit_savant --limit 10
-
-# Run the dashboard
-python3 -m bait_engine.cli.main panel-serve --open
 ```
 
-See `docs/00_build_order.md` for full architecture.
+## Quick Start
+
+```bash
+# Analyze a comment for engagement opportunity
+bait-engine analyze --text "Your take is garbage and you should feel bad"
+
+# Draft a reply with a specific persona
+bait-engine draft --text "Unpopular opinion: pineapple belongs on pizza" \
+  --persona dry_midwit_savant --platform reddit --save
+
+# Hunt for targets on Reddit
+bait-engine hunt-preview --source reddit --persona auto --limit 10
+
+# Run the web dashboard
+bait-engine panel-serve --open
+
+# View engagement scoreboard
+bait-engine scoreboard
+
+# Generate a report
+bait-engine report-markdown --out report.md
+```
+
+## CLI Reference
+
+### Analysis & Generation
+| Command | Description |
+|---------|-------------|
+| `analyze` | Analyze text for signals, axes, archetypes, contradictions |
+| `plan` | Build tactical plan from analysis |
+| `draft` | Generate candidate replies with persona selection |
+| `replay` | Replay a run with new parameters |
+
+### Storage & Assessment
+| Command | Description |
+|---------|-------------|
+| `runs` | List stored runs |
+| `show-run` | Display specific run |
+| `autopsy` | Inspect single run outcome |
+| `autopsy-many` | Summarize recent runs |
+| `scoreboard` | Rollup engagement outcomes |
+| `report` | Bundle scoreboard + best bites + flops |
+| `record-outcome` | Record engagement outcome |
+
+### Hunt Intake (Phase 9+)
+| Command | Description |
+|---------|-------------|
+| `hunt-preview` | Preview targets from hunt source |
+| `hunt-list` | List available intake targets |
+| `hunt-promote` | Promote target to active processing |
+| `hunt-cycle` | Run staged hunt cycle |
+| `hunt-run` | Execute full hunt with dispatch |
+
+### Mutation & Evolution (Phase 10+)
+| Command | Description |
+|---------|-------------|
+| `mutate-run` | Mutate winners from specific run |
+| `mutate-winners` | Batch mutate recent winners |
+| `mutation-report` | Inspect mutation inventory |
+
+### Adapter & Dispatch
+| Command | Description |
+|---------|-------------|
+| `adapters` | List registered platform adapters |
+| `adapter-preview` | Compile run into transport-neutral envelope |
+| `emit-preview` | Render transport-specific dry-run |
+| `dispatch-emit` | Dispatch approved outbox entry |
+| `dispatch-approved` | Batch-fire approved backlog |
+| `dispatch-status` | Check dispatch lifecycle |
+| `redrive-dispatch` | Retry failed dispatches |
+
+### Panel & Dashboard
+| Command | Description |
+|---------|-------------|
+| `panel-preview` | Build local inspection panel payload |
+| `panel-serve` | Host panel as local HTTP app |
+| `outbox` | Inspect emit outbox |
+
+### Worker & Daemon
+| Command | Description |
+|---------|-------------|
+| `worker-cycle` | Run one worker pass |
+| `worker-run` | Run bounded worker cycles |
+| `daemon` | Manage LaunchAgent-backed daemon |
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        HUNT INTAKE                          │
+│  (target discovery → bite scoring → lane assignment)        │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                       ANALYSIS PIPELINE                     │
+│  (signals → axes → archetypes → contradictions → score)    │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                      PLANNING ENGINE                        │
+│  (persona selection → tactics → objectives → exit criteria) │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                     GENERATION PIPELINE                     │
+│  (prompts → LLM writer → critic → ranker → candidates)     │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    ADAPTER & DISPATCH                       │
+│  (transport-neutral envelope → platform adapter → emit)     │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    MUTATION & EVOLUTION                     │
+│  (bite detection → winner mutation → next-gen prompts)      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Test Status
+
+**146 tests passing**
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=src/bait_engine
+```
+
+## Documentation
+
+| Doc | Description |
+|-----|-------------|
+| `docs/00_build_order.md` | Architecture overview and build sequence |
+| `docs/01_core_domain_model.md` | Domain models and schemas |
+| `docs/02_analysis_pipeline.md` | Analysis pipeline design |
+| `docs/03_decision_and_branching.md` | Decision engine and branching |
+| `docs/14_phase9_hunt_intake.md` | Hunt intake rail (Phase 9) |
+| `docs/15_phase10_bite_evolution.md` | Bite gate + mutation (Phase 10) |
+| `docs/16_phase11_optimization_rail.md` | Optimization rail (Phase 11) |
+| `docs/18_phase12_auto_persona_router.md` | Auto persona router (Phase 12) |
+| `docs/19_phase13_autopilot_hardening.md` | Autopilot hardening (Phase 13) |
+| `docs/operator_runbook.md` | Day-to-day operational guide |
+
+## Configuration
+
+Create `.env` or set environment variables:
+
+```bash
+# Required for provider-backed generation
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-...
+
+# Optional: OpenRouter for alternative models
+OPENROUTER_API_KEY=sk-...
+
+# Optional: ElevenLabs for TTS
+ELEVENLABS_API_KEY=...
+```
+
+## Development
+
+```bash
+# Install dev dependencies
+pip install -e ".[dev]"
+
+# Run type checking
+mypy src/bait_engine
+
+# Run linting
+ruff check src/bait_engine
+
+# Format code
+ruff format src/bait_engine
+```
+
+## Build Doctrine
+
+1. Lock schemas before writing clever code
+2. Separate analysis from generation
+3. Make every decision inspectable
+4. Prefer deterministic scoring around the model
+5. Keep work chunked into small, durable files
+
+## Phase Status
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| 0-5 | ✅ Complete | Core engine, persistence, provider generation |
+| 6 | ✅ Complete | Adapters and UI |
+| 7 | ✅ Complete | Execution rail + transport dispatch |
+| 8 | ✅ Complete | Rhetoric scoring + persona reputation |
+| 9 | ✅ Complete | Hunt intake rail + target discovery |
+| 10 | ✅ Complete | Bite gate + mutation loop rail |
+| 11 | ✅ Complete | Optimization rail (arteries 1-6) |
+| 12 | ✅ Complete | Auto persona router (arteries 1-4) |
+| 13 | ✅ Complete | Autopilot hardening (arteries 1-7) |
+
+## License
+
+MIT License - See LICENSE file for details.
+
+---
+
+**Built with**: Python 3.14+, Pydantic, Click, pytest, SQLite
+
+**Maintained by**: @ethanheinrick01-ctrl
